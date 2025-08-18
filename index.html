@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="style.css">
+  <script src="script.js" defer></script>
+  <title>OpenWeatherMap API</title>
+</head>
+  <body>
+    
+    
+    <main id="container">
+      <header id="icon"><img src="https://rodrigokamada.github.io/openweathermap/images/01d_t.png" alt=""></header>
+      
+      <section id="weather-info">Weather information</section>
+
+      <section id="select-region">
+        <div class="select-button">
+          <form>
+            <label for="country">Country:</label>
+            <select id="country" name="country">
+              <option value="default">Select</option>
+            </select>
+          </form>
+        </div>
+
+        <div class="select-button">
+          <form>
+            <label for="state">State:<label>
+            <select id="state" name="state">
+              <option value="default">Select</option>
+            </select>
+          </form>
+        </div>
+
+        <div class="select-button">
+          <form>
+            <label for="city">City:<label>
+            <select id="city" name="city">
+              <option value="default">Select</option>
+            </select>
+          </form>
+        </div>
+      </section>
+    </main>
+  </body>
+</html>
