@@ -1,9 +1,9 @@
-const WEATHER_KEY = "278fc23f3d2887665aa8fc6a1716168f";
-const GEOCODING_KEY = "9d16ffbf4b67e74edda85422b342e873";
+const API_KEY = "278fc23f3d2887665aa8fc6a1716168f";
 
 const selectCountries = document.getElementById("select-countries");
 const selectStates = document.getElementById("select-states");
 const selectCities = document.getElementById("select-cities");
+const weatherOutput = document.getElementById("weather-output");
 
 
 function populateSelect(selectElement, items, valueKey, textKey, placeholder) {
@@ -50,7 +50,41 @@ async function loadCities(stateCode) {
   const response = await fetch("countries-states-cities/cities.json");
   const data = await response.json();
   const filteredCities = data.filter(city => city.state_code === stateCode);
-  populateSelect(selectCities, filteredCities, "id", "name", "Select a city");
+  populateSelect(selectCities, filteredCities, "name", "name", "Select a city");
+}
+
+
+async function getCoordinates(city, state, country) {
+  if (!city || !state || !country) return null;
+
+  const query = `${city},${state},${country}`;
+  const url = `https://api.openweathermap.org/geo/1.0/direct?q=${encodeURIComponent(query)}&limit=1&appid=${API_KEY}`;
+
+  const response = await fetch(url);
+  const data = await response.json();
+
+  if (data.length === 0) return null;
+
+  return {
+    lat: data[0].lat,
+    lon: data[0].lon
+  };
+}
+
+
+async function getWeather(lat, lon) {
+  const url = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&units=metric&appid=${API_KEY}`;
+  const response = await fetch(url);
+  const data = await response.json();
+
+  return {
+    city: data.name,
+    temp: data.main.temp,
+    humidity: data.main.humidity,
+    weatherMain: data.weather[0].main,
+    weatherDesc: data.weather[0].description,
+    windSpeed: data.wind.speed
+  };
 }
 
 
@@ -65,6 +99,28 @@ function main() {
   selectStates.addEventListener("change", () => {
     const stateCode = selectStates.value;
     loadCities(stateCode);
+  });
+
+  selectCities.addEventListener("change", async () => {
+    const cityName = selectCities.value;
+    const stateName = selectStates.options[selectStates.selectedIndex].text;
+    const countryCode = selectCountries.value;
+
+    const coords = await getCoordinates(cityName, stateName, countryCode);
+
+    if (coords) {
+      const weather = await getWeather(coords.lat, coords.lon);
+
+      weatherOutput.innerHTML = `
+        <h3>Weather in ${weather.city}</h3>
+        <p>Temperature: ${weather.temp}°C</p>
+        <p>Humidity: ${weather.humidity}%</p>
+        <p>Condition: ${weather.weatherMain} - ${weather.weatherDesc}</p>
+        <p>Wind: ${weather.windSpeed} m/s</p>
+      `;
+    } else {
+      weatherOutput.innerHTML = "<p>Local not found in Geocoding API</p>";
+    }
   });
 }
 
